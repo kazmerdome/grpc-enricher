@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package category;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/kazmerdome/grpc-enricher/internal/module/category/category-grpc";
+
+enum CategoryStatus {
+  STATUS_ACTIVE = 0;
+  STATUS_PENDING = 1;
+  STATUS_ARCHIVED = 2;
+}
+
+message Category {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  CategoryStatus status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// Enrich
+// This is for enriching the category if has any fields to enrich
+message CategoryEnrichParams {
+  optional bool enrich_all_fields = 1;
+  optional bool enrich_all_relations = 2;
+
+  optional bool id = 3;
+  optional bool name = 4;
+  optional bool slug = 5;
+  optional bool status = 6;
+  optional bool created_at = 7;
+  optional bool updated_at = 8;
+}

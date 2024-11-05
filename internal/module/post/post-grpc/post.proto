@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package post;
+
+import "google/protobuf/timestamp.proto";
+import "internal/module/category/category-grpc/category.proto";
+
+option go_package = "github.com/kazmerdome/grpc-enricher/internal/module/post/post-grpc";
+
+service PostService {
+  rpc ListPost(ListPostRequest) returns (ListPostResponse);
+}
+
+message ListPostRequest {
+  optional PostEnrichParams enrichParams = 1;
+}
+
+message ListPostResponse {
+  repeated Post posts = 1;
+}
+
+// Enrich
+message PostEnrichParams {
+  optional bool enrich_all_fields = 1;
+  optional bool enrich_all_relations = 2;
+
+  optional bool id = 3;
+  optional bool title = 4;
+  optional bool slug = 5;
+  optional category.CategoryEnrichParams category = 6;
+  optional bool status = 7;
+  optional bool content = 8;
+  optional bool created_at = 9;
+  optional bool updated_at = 10;
+}
+
+// Enums
+enum PostStatus {
+  STATUS_ACTIVE = 0;
+  STATUS_PENDING = 1;
+  STATUS_ARCHIVED = 2;
+}
+
+// Message definitions
+message Post {
+  string id = 1;
+  string title = 2;
+  string slug = 3;
+  category.Category category = 4;
+  PostStatus status = 5;
+  string content = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
