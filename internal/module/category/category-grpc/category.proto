@@ -3,6 +3,7 @@ syntax = "proto3";
 package category;
 
 import "google/protobuf/timestamp.proto";
+import "internal/module/tag/tag-grpc/tag.proto";
 
 option go_package = "github.com/kazmerdome/grpc-enricher/internal/module/category/category-grpc";
 
@@ -17,8 +18,9 @@ message Category {
   string name = 2;
   string slug = 3;
   CategoryStatus status = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
+  repeated tag.Tag tags = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
 }
 
 // Enrich
@@ -31,6 +33,7 @@ message CategoryEnrichParams {
   optional bool name = 4;
   optional bool slug = 5;
   optional bool status = 6;
-  optional bool created_at = 7;
-  optional bool updated_at = 8;
+  optional tag.TagEnrichParams tags = 7;
+  optional bool created_at = 8;
+  optional bool updated_at = 9;
 }

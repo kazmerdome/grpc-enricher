@@ -4,14 +4,18 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kazmerdome/grpc-enricher/internal/module/tag"
 )
 
 var CategoryData = []Category{
 	{
-		Id:        uuid.New(),
-		Name:      "Category 1",
-		Slug:      "category-1",
-		Status:    StatusActive,
+		Id:     uuid.New(),
+		Name:   "Category 1",
+		Slug:   "category-1",
+		Status: StatusActive,
+		Tags: []uuid.UUID{
+			tag.TagData[0].Id,
+		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	},

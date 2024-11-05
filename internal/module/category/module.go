@@ -1,12 +1,14 @@
 package category
 
+import "github.com/kazmerdome/grpc-enricher/internal/module/tag"
+
 type categoryModule struct {
 	categoryEnricher CategoryEnricher
 }
 
-func NewCategoryModule() *categoryModule {
+func NewCategoryModule(tagEnricher tag.TagEnricher) *categoryModule {
 	categoryDataloader := NewCategoryDataloader()
-	categoryEnricher := NewCategoryEnricher(categoryDataloader)
+	categoryEnricher := NewCategoryEnricher(tagEnricher, categoryDataloader)
 	return &categoryModule{categoryEnricher: categoryEnricher}
 }
 

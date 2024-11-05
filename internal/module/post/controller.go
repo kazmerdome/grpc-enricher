@@ -5,6 +5,7 @@ import (
 
 	category_grpc "github.com/kazmerdome/grpc-enricher/internal/module/category/category-grpc"
 	post_grpc "github.com/kazmerdome/grpc-enricher/internal/module/post/post-grpc"
+	tag_grpc "github.com/kazmerdome/grpc-enricher/internal/module/tag/tag-grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -44,6 +45,11 @@ func (r *postController) ListPost(ctx context.Context, in *post_grpc.ListPostReq
 			Content:   post.Content,
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
+		}
+		for i := range post.Tags {
+			grpcPost.Tags = append(grpcPost.Tags, &tag_grpc.Tag{
+				Id: post.Tags[i].String(),
+			})
 		}
 		grpcPost, err = r.postEnricher.Enrich(false, grpcPost, in.GetEnrichParams())
 		if err != nil {

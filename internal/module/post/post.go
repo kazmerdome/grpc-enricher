@@ -33,14 +33,15 @@ type PostEnricher interface {
 //
 
 type Post struct {
-	Id        uuid.UUID  `json:"id" bson:"_id"`
-	Title     string     `json:"title" bson:"title"`
-	Slug      string     `json:"slug" bson:"slug"`
-	Category  uuid.UUID  `json:"category" bson:"category"`
-	Status    PostStatus `json:"status" bson:"status"`
-	Content   string     `json:"content" bson:"content"`
-	CreatedAt time.Time  `json:"createdAt" bson:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt" bson:"updatedAt"`
+	Id        uuid.UUID   `json:"id" bson:"_id"`
+	Title     string      `json:"title" bson:"title"`
+	Slug      string      `json:"slug" bson:"slug"`
+	Tags      []uuid.UUID `json:"tags" bson:"tags"`
+	Category  uuid.UUID   `json:"category" bson:"category"`
+	Status    PostStatus  `json:"status" bson:"status"`
+	Content   string      `json:"content" bson:"content"`
+	CreatedAt time.Time   `json:"createdAt" bson:"createdAt"`
+	UpdatedAt time.Time   `json:"updatedAt" bson:"updatedAt"`
 }
 
 type PostStatus string

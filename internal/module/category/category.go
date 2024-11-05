@@ -28,6 +28,7 @@ type Category struct {
 	Name      string         `json:"name" bson:"name"`
 	Slug      string         `json:"slug" bson:"slug"`
 	Status    CategoryStatus `json:"status" bson:"status"`
+	Tags      []uuid.UUID    `json:"tags" bson:"tags"`
 	CreatedAt time.Time      `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt" bson:"updatedAt"`
 }

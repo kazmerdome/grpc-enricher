@@ -3,15 +3,19 @@ package category
 import (
 	"github.com/google/uuid"
 	category_grpc "github.com/kazmerdome/grpc-enricher/internal/module/category/category-grpc"
+	"github.com/kazmerdome/grpc-enricher/internal/module/tag"
+	tag_grpc "github.com/kazmerdome/grpc-enricher/internal/module/tag/tag-grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type categoryEnricher struct {
+	tagEnricher        tag.TagEnricher
 	categoryDataloader CategoryDataloader
 }
 
-func NewCategoryEnricher(categoryDataloader CategoryDataloader) *categoryEnricher {
+func NewCategoryEnricher(tagEnricher tag.TagEnricher, categoryDataloader CategoryDataloader) *categoryEnricher {
 	return &categoryEnricher{
+		tagEnricher:        tagEnricher,
 		categoryDataloader: categoryDataloader,
 	}
 }
@@ -45,8 +49,16 @@ func (r *categoryEnricher) Enrich(loadEntity bool, category *category_grpc.Categ
 			Name:      categoryData.Name,
 			Slug:      categoryData.Slug,
 			Status:    1,
+			Tags:      []*tag_grpc.Tag{},
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
+		}
+		for _, postTag := range categoryData.Tags {
+			tagId := postTag.String()
+			tag := &tag_grpc.Tag{
+				Id: tagId,
+			}
+			category.Tags = append(category.Tags, tag)
 		}
 	}
 
@@ -70,6 +82,9 @@ func (r *categoryEnricher) Enrich(loadEntity bool, category *category_grpc.Categ
 		if params.GetStatus() {
 			c.Status = category.Status
 		}
+		if params.GetTags() != nil {
+			c.Tags = category.Tags
+		}
 		if params.GetCreatedAt() {
 			c.CreatedAt = category.CreatedAt
 		}
@@ -82,8 +97,22 @@ func (r *categoryEnricher) Enrich(loadEntity bool, category *category_grpc.Categ
 	// Enrich relations
 	//
 
+	tagsEnrichParams := params.Tags
 	if params.GetEnrichAllRelations() {
-		// TODO
+		t := true
+		tagsEnrichParams = &tag_grpc.TagEnrichParams{
+			EnrichAllRelations: &t,
+		}
+		if params.GetEnrichAllFields() {
+			tagsEnrichParams.EnrichAllFields = &t
+		}
+	}
+	if tagsEnrichParams != nil && len(category.Tags) > 0 {
+		tags, err := r.tagEnricher.EnrichBulk(true, category.Tags, tagsEnrichParams)
+		if err != nil {
+			return nil, err
+		}
+		category.Tags = tags
 	}
 
 	return category, nil

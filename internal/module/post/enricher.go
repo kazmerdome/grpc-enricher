@@ -5,17 +5,25 @@ import (
 	"github.com/kazmerdome/grpc-enricher/internal/module/category"
 	category_grpc "github.com/kazmerdome/grpc-enricher/internal/module/category/category-grpc"
 	post_grpc "github.com/kazmerdome/grpc-enricher/internal/module/post/post-grpc"
+	"github.com/kazmerdome/grpc-enricher/internal/module/tag"
+	tag_grpc "github.com/kazmerdome/grpc-enricher/internal/module/tag/tag-grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type postEnricher struct {
 	categoryEnricher category.CategoryEnricher
+	tagEnricher      tag.TagEnricher
 	postDataloader   PostDataloader
 }
 
-func NewPostEnricher(categoryEnricher category.CategoryEnricher, postDataloader PostDataloader) *postEnricher {
+func NewPostEnricher(
+	categoryEnricher category.CategoryEnricher,
+	tagEnricher tag.TagEnricher,
+	postDataloader PostDataloader,
+) *postEnricher {
 	return &postEnricher{
 		categoryEnricher: categoryEnricher,
+		tagEnricher:      tagEnricher,
 		postDataloader:   postDataloader,
 	}
 }
@@ -48,6 +56,7 @@ func (r *postEnricher) Enrich(loadEntity bool, post *post_grpc.Post, params *pos
 			Id:    postData.Id.String(),
 			Title: postData.Title,
 			Slug:  postData.Slug,
+			Tags:  []*tag_grpc.Tag{},
 			Category: &category_grpc.Category{
 				Id: postData.Category.String(),
 			},
@@ -55,6 +64,13 @@ func (r *postEnricher) Enrich(loadEntity bool, post *post_grpc.Post, params *pos
 			Status:    1, // TODO - fix this
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
+		}
+		for _, postTag := range postData.Tags {
+			tagId := postTag.String()
+			tag := &tag_grpc.Tag{
+				Id: tagId,
+			}
+			post.Tags = append(post.Tags, tag)
 		}
 	}
 
@@ -74,6 +90,9 @@ func (r *postEnricher) Enrich(loadEntity bool, post *post_grpc.Post, params *pos
 		}
 		if params.GetSlug() {
 			p.Slug = post.Slug
+		}
+		if params.GetTags() != nil {
+			p.Tags = post.Tags
 		}
 		if params.GetCategory() != nil {
 			p.Category = post.Category
@@ -96,25 +115,34 @@ func (r *postEnricher) Enrich(loadEntity bool, post *post_grpc.Post, params *pos
 	// Enrich relations
 	//
 
-	// Enrich category
+	tagsEnrichParams := params.Tags
 	categoryEnrichParams := params.Category
 	if params.GetEnrichAllRelations() {
 		t := true
 		categoryEnrichParams = &category_grpc.CategoryEnrichParams{
-			EnrichAllFields: &t,
+			EnrichAllRelations: &t,
+		}
+		tagsEnrichParams = &tag_grpc.TagEnrichParams{
+			EnrichAllRelations: &t,
 		}
 		if params.GetEnrichAllFields() {
 			categoryEnrichParams.EnrichAllFields = &t
+			tagsEnrichParams.EnrichAllFields = &t
 		}
 	}
-
-	// Enrich category
 	if categoryEnrichParams != nil {
 		category, err := r.categoryEnricher.Enrich(true, post.Category, categoryEnrichParams)
 		if err != nil {
 			return nil, err
 		}
 		post.Category = category
+	}
+	if tagsEnrichParams != nil && len(post.Tags) > 0 {
+		tags, err := r.tagEnricher.EnrichBulk(true, post.Tags, tagsEnrichParams)
+		if err != nil {
+			return nil, err
+		}
+		post.Tags = tags
 	}
 
 	return post, nil
