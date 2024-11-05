@@ -2,6 +2,7 @@ package post
 
 import (
 	"context"
+	"sync"
 
 	category_grpc "github.com/kazmerdome/grpc-enricher/internal/module/category/category-grpc"
 	post_grpc "github.com/kazmerdome/grpc-enricher/internal/module/post/post-grpc"
@@ -32,46 +33,57 @@ func (r *postController) ListPost(ctx context.Context, in *post_grpc.ListPostReq
 	}
 
 	postsResponse := []*post_grpc.Post{}
+
+	var wg sync.WaitGroup
+	postsResponseChan := make(chan *post_grpc.Post, len(posts))
+	postsResponseErrChan := make(chan error, len(posts))
+
+	// TODO ensure that the order of posts is maintained
 	for _, post := range posts {
-		createdAt := timestamppb.New(post.CreatedAt)
-		updatedAt := timestamppb.New(post.UpdatedAt)
-		grpcPost := &post_grpc.Post{
-			Id:    post.Id.String(),
-			Title: post.Title,
-			Slug:  post.Slug,
-			Category: &category_grpc.Category{
-				Id: post.Category.String(),
-			},
-			Content:   post.Content,
-			CreatedAt: createdAt,
-			UpdatedAt: updatedAt,
-		}
-		for i := range post.Tags {
-			grpcPost.Tags = append(grpcPost.Tags, &tag_grpc.Tag{
-				Id: post.Tags[i].String(),
-			})
-		}
+		wg.Add(1)
 
-		// Enrich post
-		grpcPostResultChan := make(chan *post_grpc.Post)
-		grpcPostErrChan := make(chan error)
+		go func(post Post, rChan chan *post_grpc.Post, errChan chan error) {
+			defer wg.Done()
+			createdAt := timestamppb.New(post.CreatedAt)
+			updatedAt := timestamppb.New(post.UpdatedAt)
+			grpcPost := &post_grpc.Post{
+				Id:    post.Id.String(),
+				Title: post.Title,
+				Slug:  post.Slug,
+				Category: &category_grpc.Category{
+					Id: post.Category.String(),
+				},
+				Content:   post.Content,
+				CreatedAt: createdAt,
+				UpdatedAt: updatedAt,
+			}
+			for i := range post.Tags {
+				grpcPost.Tags = append(grpcPost.Tags, &tag_grpc.Tag{
+					Id: post.Tags[i].String(),
+				})
+			}
 
-		go func() {
-			grpcPost, err := r.postEnricher.Enrich(true, grpcPost, in.GetEnrichParams())
+			// Enrich post
+			grpcPost, err = r.postEnricher.Enrich(false, grpcPost, in.GetEnrichParams())
 			if err != nil {
-				grpcPostErrChan <- err
+				errChan <- err
 				return
 			}
-			grpcPostResultChan <- grpcPost
-		}()
+			rChan <- grpcPost
+		}(post, postsResponseChan, postsResponseErrChan)
+	}
 
-		select {
-		case grpcPost = <-grpcPostResultChan:
-		case err = <-grpcPostErrChan:
-			return nil, err
-		}
+	wg.Wait()
 
-		postsResponse = append(postsResponse, grpcPost)
+	close(postsResponseChan)
+	close(postsResponseErrChan)
+
+	if len(postsResponseErrChan) > 0 {
+		return nil, <-postsResponseErrChan
+	}
+
+	for post := range postsResponseChan {
+		postsResponse = append(postsResponse, post)
 	}
 
 	return &post_grpc.ListPostResponse{
