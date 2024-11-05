@@ -51,10 +51,26 @@ func (r *postController) ListPost(ctx context.Context, in *post_grpc.ListPostReq
 				Id: post.Tags[i].String(),
 			})
 		}
-		grpcPost, err = r.postEnricher.Enrich(false, grpcPost, in.GetEnrichParams())
-		if err != nil {
+
+		// Enrich post
+		grpcPostResultChan := make(chan *post_grpc.Post)
+		grpcPostErrChan := make(chan error)
+
+		go func() {
+			grpcPost, err := r.postEnricher.Enrich(true, grpcPost, in.GetEnrichParams())
+			if err != nil {
+				grpcPostErrChan <- err
+				return
+			}
+			grpcPostResultChan <- grpcPost
+		}()
+
+		select {
+		case grpcPost = <-grpcPostResultChan:
+		case err = <-grpcPostErrChan:
 			return nil, err
 		}
+
 		postsResponse = append(postsResponse, grpcPost)
 	}
 

@@ -22,6 +22,9 @@ func main() {
 	t := true
 	posts, err := postModule.GetController().ListPost(context.Background(), &post_grpc.ListPostRequest{
 		EnrichParams: &post_grpc.PostEnrichParams{
+			// EnrichAllFields:    &t,
+			// EnrichAllRelations: &t,
+
 			Id:      &t,
 			Title:   &t,
 			Content: &t,

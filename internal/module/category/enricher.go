@@ -108,11 +108,23 @@ func (r *categoryEnricher) Enrich(loadEntity bool, category *category_grpc.Categ
 		}
 	}
 	if tagsEnrichParams != nil && len(category.Tags) > 0 {
-		tags, err := r.tagEnricher.EnrichBulk(true, category.Tags, tagsEnrichParams)
-		if err != nil {
+		tagsResultChan := make(chan []*tag_grpc.Tag)
+		tagsErrorChan := make(chan error)
+		go func() {
+			tags, err := r.tagEnricher.EnrichBulk(true, category.Tags, tagsEnrichParams)
+			if err != nil {
+				tagsErrorChan <- err
+				return
+			}
+			tagsResultChan <- tags
+		}()
+
+		select {
+		case tags := <-tagsResultChan:
+			category.Tags = tags
+		case err := <-tagsErrorChan:
 			return nil, err
 		}
-		category.Tags = tags
 	}
 
 	return category, nil
