@@ -97,7 +97,7 @@ func (r *tagDataloader) batchItemLoader(ctx context.Context, keys dataloader.Key
 }
 
 func (r *tagDataloader) ItemsLoader(ctx context.Context, ids []uuid.UUID) ([]*Tag, error) {
-	fmt.Println("tagDataloader.ItemsLoader called with length of ids:", len(ids))
+	fmt.Println("tagDataloader.ItemsLoader called with ids:", ids)
 
 	uuidKeys := []dataloader.Key{}
 	for _, id := range ids {

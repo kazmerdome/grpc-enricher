@@ -15,7 +15,7 @@ func NewCategoryRepository() *categoryRepository {
 }
 
 func (r *categoryRepository) GetManyByIds(ctx context.Context, ids []uuid.UUID) ([]*Category, error) {
-	fmt.Println("categoryRepository.GetManyByIds called")
+	fmt.Println("categoryRepository.GetManyByIds called with ids:", ids)
 
 	result := []*Category{}
 	for _, id := range ids {

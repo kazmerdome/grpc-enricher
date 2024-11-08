@@ -15,7 +15,7 @@ func NewTagRepository() *tagRepository {
 }
 
 func (r *tagRepository) GetManyByIds(ctx context.Context, ids []uuid.UUID) ([]*Tag, error) {
-	fmt.Println("tagRepository.GetManyByIds called")
+	fmt.Println("tagRepository.GetManyByIds called with ids:", ids)
 
 	result := []*Tag{}
 	for _, id := range ids {
