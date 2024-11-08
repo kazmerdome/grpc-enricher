@@ -7,7 +7,8 @@ type categoryModule struct {
 }
 
 func NewCategoryModule(tagEnricher tag.TagEnricher) *categoryModule {
-	categoryDataloader := NewCategoryDataloader()
+	repository := NewCategoryRepository()
+	categoryDataloader := NewCategoryDataloader(repository)
 	categoryEnricher := NewCategoryEnricher(tagEnricher, categoryDataloader)
 	return &categoryModule{categoryEnricher: categoryEnricher}
 }

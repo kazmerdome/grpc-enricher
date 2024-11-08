@@ -20,9 +20,14 @@ var CategoryData = []Category{
 		UpdatedAt: time.Now(),
 	},
 	{
-		Id:        uuid.New(),
-		Name:      "Category 2",
-		Slug:      "category-2",
+		Id:   uuid.New(),
+		Name: "Category 2",
+		Slug: "category-2",
+		Tags: []uuid.UUID{
+			tag.TagData[2].Id,
+			tag.TagData[1].Id,
+			tag.TagData[0].Id,
+		},
 		Status:    StatusActive,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),

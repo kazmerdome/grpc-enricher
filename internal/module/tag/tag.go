@@ -1,6 +1,7 @@
 package tag
 
 import (
+	"context"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,14 +13,18 @@ import (
 // Definitions
 //
 
+type TagRepository interface {
+	GetManyByIds(ctx context.Context, ids []uuid.UUID) ([]*Tag, error)
+}
+
 type TagEnricher interface {
 	Enrich(loadEntity bool, tag *tag_grpc.Tag, params *tag_grpc.TagEnrichParams) (*tag_grpc.Tag, error)
 	EnrichBulk(loadEntity bool, tags []*tag_grpc.Tag, params *tag_grpc.TagEnrichParams) ([]*tag_grpc.Tag, error)
 }
 
 type TagDataloader interface {
-	LoadTag(id uuid.UUID) (*Tag, error)
-	LoadTags(id []uuid.UUID) ([]*Tag, error)
+	ItemLoader(ctx context.Context, id uuid.UUID) (*Tag, error)
+	ItemsLoader(ctx context.Context, ids []uuid.UUID) ([]*Tag, error)
 }
 
 // Entity & Enum

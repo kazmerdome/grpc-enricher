@@ -1,6 +1,8 @@
 package category
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	category_grpc "github.com/kazmerdome/grpc-enricher/internal/module/category/category-grpc"
 	"github.com/kazmerdome/grpc-enricher/internal/module/tag"
@@ -33,7 +35,7 @@ func (r *categoryEnricher) Enrich(loadEntity bool, category *category_grpc.Categ
 		if err != nil {
 			return nil, err
 		}
-		categoryData, err := r.categoryDataloader.LoadCategory(categoryId)
+		categoryData, err := r.categoryDataloader.ItemLoader(context.Background(), categoryId)
 		if err != nil {
 			return nil, err
 		}

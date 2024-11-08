@@ -5,7 +5,8 @@ type tagModule struct {
 }
 
 func NewTagModule() *tagModule {
-	tagDataloader := NewTagDataloader()
+	repository := NewTagRepository()
+	tagDataloader := NewTagDataloader(repository)
 	tagEnricher := NewTagEnricher(tagDataloader)
 	return &tagModule{tagEnricher: tagEnricher}
 }

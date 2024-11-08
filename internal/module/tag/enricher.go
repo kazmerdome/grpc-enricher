@@ -1,6 +1,8 @@
 package tag
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	tag_grpc "github.com/kazmerdome/grpc-enricher/internal/module/tag/tag-grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -29,7 +31,7 @@ func (r *tagEnricher) Enrich(loadEntity bool, tag *tag_grpc.Tag, params *tag_grp
 		if err != nil {
 			return nil, err
 		}
-		tagData, err := r.tagDataloader.LoadTag(tagId)
+		tagData, err := r.tagDataloader.ItemLoader(context.Background(), tagId)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +97,7 @@ func (r *tagEnricher) EnrichBulk(loadEntity bool, tags []*tag_grpc.Tag, params *
 			ids = append(ids, tagId)
 		}
 
-		tagsData, err := r.tagDataloader.LoadTags(ids)
+		tagsData, err := r.tagDataloader.ItemsLoader(context.TODO(), ids)
 		if err != nil {
 			return nil, err
 		}

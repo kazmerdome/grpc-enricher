@@ -5,11 +5,9 @@ import (
 	"fmt"
 
 	"github.com/kazmerdome/grpc-enricher/internal/module/category"
-	category_grpc "github.com/kazmerdome/grpc-enricher/internal/module/category/category-grpc"
 	"github.com/kazmerdome/grpc-enricher/internal/module/post"
 	post_grpc "github.com/kazmerdome/grpc-enricher/internal/module/post/post-grpc"
 	"github.com/kazmerdome/grpc-enricher/internal/module/tag"
-	tag_grpc "github.com/kazmerdome/grpc-enricher/internal/module/tag/tag-grpc"
 )
 
 func main() {
@@ -28,16 +26,16 @@ func main() {
 			Id:      &t,
 			Title:   &t,
 			Content: &t,
-			Tags: &tag_grpc.TagEnrichParams{
-				Name: &t,
-			},
-			Category: &category_grpc.CategoryEnrichParams{
-				Id:   &t,
-				Name: &t,
-				Tags: &tag_grpc.TagEnrichParams{
-					Name: &t,
-				},
-			},
+			// Tags: &tag_grpc.TagEnrichParams{
+			// 	Name: &t,
+			// },
+			// Category: &category_grpc.CategoryEnrichParams{
+			// 	Id:   &t,
+			// 	Name: &t,
+			// 	Tags: &tag_grpc.TagEnrichParams{
+			// 		Name: &t,
+			// 	},
+			// },
 		},
 	})
 
