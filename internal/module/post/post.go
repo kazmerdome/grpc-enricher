@@ -1,6 +1,7 @@
 package post
 
 import (
+	"context"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,12 +14,13 @@ import (
 // Definitions
 //
 
-type PostService interface {
-	ListPosts() ([]Post, error)
+type PostRepository interface {
+	GetManyByIds(ctx context.Context, ids []uuid.UUID) ([]*Post, error)
+	GetMany(ctx context.Context) ([]Post, error)
 }
 
 type PostDataloader interface {
-	LoadPost(id uuid.UUID) (*Post, error)
+	ItemLoader(ctx context.Context, id uuid.UUID) (*Post, error)
 }
 
 type PostResolver interface {

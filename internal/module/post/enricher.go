@@ -1,6 +1,8 @@
 package post
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/kazmerdome/grpc-enricher/internal/module/category"
 	category_grpc "github.com/kazmerdome/grpc-enricher/internal/module/category/category-grpc"
@@ -41,7 +43,7 @@ func (r *postEnricher) Enrich(loadEntity bool, post *post_grpc.Post, params *pos
 		if err != nil {
 			return nil, err
 		}
-		postData, err := r.postDataloader.LoadPost(postId)
+		postData, err := r.postDataloader.ItemLoader(context.Background(), postId)
 		if err != nil {
 			return nil, err
 		}

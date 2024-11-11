@@ -14,20 +14,20 @@ import (
 
 type postController struct {
 	post_grpc.UnimplementedPostServiceServer
-	service      PostService
+	repository   PostRepository
 	postEnricher PostEnricher
 }
 
-func NewPostController(service PostService, postEnricher PostEnricher) *postController {
+func NewPostController(repository PostRepository, postEnricher PostEnricher) *postController {
 	return &postController{
-		service:      service,
+		repository:   repository,
 		postEnricher: postEnricher,
 	}
 }
 
 func (r *postController) ListPost(ctx context.Context, in *post_grpc.ListPostRequest) (*post_grpc.ListPostResponse, error) {
 	// Get list of posts
-	posts, err := r.service.ListPosts()
+	posts, err := r.repository.GetMany(ctx)
 	if err != nil {
 		return nil, err
 	}

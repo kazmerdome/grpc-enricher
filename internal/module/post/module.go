@@ -7,22 +7,17 @@ import (
 )
 
 type postModule struct {
-	service    PostService
 	controller post_grpc.PostServiceServer
 }
 
 func NewPostModule(categoryEnricher category.CategoryEnricher, tagEnricher tag.TagEnricher) *postModule {
-	service := NewPostService()
-	postDataloader := NewPostDataloader()
+	repository := NewPostRepository()
+	postDataloader := NewPostDataloader(repository)
 	postEnricher := NewPostEnricher(categoryEnricher, tagEnricher, postDataloader)
-	controller := NewPostController(service, postEnricher)
-	return &postModule{service: service, controller: controller}
+	controller := NewPostController(repository, postEnricher)
+	return &postModule{controller: controller}
 }
 
 func (m *postModule) GetController() post_grpc.PostServiceServer {
 	return m.controller
-}
-
-func (m *postModule) GetService() PostService {
-	return m.service
 }

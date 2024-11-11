@@ -2,12 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "main",
+      "name": "grpc-server",
       "type": "go",
       "request": "launch",
       "mode": "auto",
       "cwd": "${workspaceFolder}",
-      "program": "${workspaceFolder}/cmd/main.go"
+      "program": "${workspaceFolder}/cmd/grpc-server/main.go"
+    },
+    {
+      "name": "grpc-client",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/cmd/grpc-client/main.go"
     },
   ]
 }

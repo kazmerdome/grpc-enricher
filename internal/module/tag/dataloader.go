@@ -34,13 +34,12 @@ func NewTagDataloader(repository TagRepository) *tagDataloader {
 	loader.itemsLoader = dataloader.NewBatchedLoader(
 		loader.batchItemsLoader,
 		dataloader.WithCache(&dataloader.NoCache{}),
-		// dataloader.WithWait(time.Millisecond*500),
 	)
 	return loader
 }
 
 func (r *tagDataloader) ItemLoader(ctx context.Context, id uuid.UUID) (*Tag, error) {
-	fmt.Println("tagDataloader.ItemLoader called with id:", id)
+	fmt.Println("\033[33m tagDataloader.ItemLoader called with id:", id, "\033[0m")
 
 	thunk := r.itemLoader.Load(ctx, dl.UuidKey(id))
 	result, err := thunk()
